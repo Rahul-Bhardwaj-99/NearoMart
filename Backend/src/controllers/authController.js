@@ -2,6 +2,7 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const admin = require('../config/firebase-config');
 const authService = require('../services/authService');
+const { USER_SELF_FIELDS } = require('../utils/projections');
 
 exports.verifyOtp = async (req, res) => {
   try {
@@ -49,9 +50,11 @@ exports.verifyOtp = async (req, res) => {
 
     const token = authService.generateToken(user);
 
+    const sanitizedUser = await User.findById(user._id).select(USER_SELF_FIELDS);
+
     res.status(200).json({
       message: 'Login successful',
-      user,
+      user: sanitizedUser,
       token
     });
   } catch (error) {
@@ -88,8 +91,9 @@ exports.updateUserRole = async (req, res) => {
     await user.save();
 
     const token = authService.generateToken(user);
+    const sanitizedUser = await User.findById(userId).select(USER_SELF_FIELDS);
 
-    res.status(200).json({ message: 'Role updated successfully', user, token });
+    res.status(200).json({ message: 'Role updated successfully', user: sanitizedUser, token });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -115,7 +119,8 @@ exports.completeOnboarding = async (req, res) => {
 
     user.isOnboarded = true;
     await user.save();
-    res.status(200).json({ message: 'Onboarding completed', user });
+    const sanitizedUser = await User.findById(userId).select(USER_SELF_FIELDS);
+    res.status(200).json({ message: 'Onboarding completed', user: sanitizedUser });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -135,7 +140,7 @@ exports.updateProfile = async (req, res) => {
       userId,
       updateData,
       { new: true }
-    );
+    ).select(USER_SELF_FIELDS);
     res.status(200).json({ user });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -190,7 +195,9 @@ exports.verifyUpdateOtp = async (req, res) => {
     user.updateOtp = null;
     await user.save();
 
-    res.status(200).json({ message: 'Profile updated successfully', user });
+    const sanitizedUser = await User.findById(userId).select(USER_SELF_FIELDS);
+
+    res.status(200).json({ message: 'Profile updated successfully', user: sanitizedUser });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

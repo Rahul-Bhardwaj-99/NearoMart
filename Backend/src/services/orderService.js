@@ -111,7 +111,10 @@ class OrderService {
     else if (status === 'ACTIVE') filter.orderStatus = { $in: ['ACCEPTED', 'PACKED', 'DISPATCHED'] };
     else if (status === 'DONE') filter.orderStatus = { $in: ['DELIVERED', 'CANCELLED'] };
 
-    return await Order.find(filter).populate('buyerId', 'name phone').sort({ createdAt: -1 });
+    return await Order.find(filter)
+      .select('-deliveryOtp -pickupOtp')
+      .populate('buyerId', 'name phone')
+      .sort({ createdAt: -1 });
   }
 }
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/splash_controller.dart';
 import '../../../widgets/common/common_text.dart';
+import '../../../widgets/common/app_logo.dart';
 import '../../../core/utils/size_config.dart';
 import '../../../core/values/strings.dart';
 import '../../../core/values/colors.dart';
@@ -56,10 +57,9 @@ class SplashView extends GetView<SplashController> {
                       color: AppColors.surface.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(30.w),
                     ),
-                    child: Icon(
-                      Icons.delivery_dining,
-                      size: 80.sp,
-                      color: AppColors.surface,
+                    child: AppLogo(
+                      size: 80.w,
+                      borderRadius: 20.w,
                     ),
                   ),
                   SizedBox(height: 24.h),

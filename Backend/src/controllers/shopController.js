@@ -2,6 +2,7 @@ const Shop = require('../models/Shop');
 const Order = require('../models/Order');
 const User = require('../models/User');
 const shopService = require('../services/shopService');
+const { SHOP_PUBLIC_FIELDS } = require('../utils/projections');
 
 exports.createShop = async (req, res) => {
   try {
@@ -26,7 +27,7 @@ exports.getNearbyShops = async (req, res) => {
 
 exports.getShopDetails = async (req, res) => {
   try {
-    const shop = await Shop.findById(req.params.id);
+    const shop = await Shop.findById(req.params.id).select(SHOP_PUBLIC_FIELDS);
     if (!shop) return res.status(404).json({ message: 'Shop not found' });
     res.status(200).json(shop);
   } catch (error) {

@@ -1,6 +1,7 @@
 const Shop = require('../models/Shop');
 const Order = require('../models/Order');
 const User = require('../models/User');
+const { SHOP_PUBLIC_FIELDS } = require('../utils/projections');
 
 class ShopService {
   async createShop(ownerId, shopData) {
@@ -70,7 +71,7 @@ class ShopService {
           $maxDistance: radius * 1000
         }
       }
-    });
+    }).select(SHOP_PUBLIC_FIELDS);
   }
 
   async getDashboardStats(ownerId) {

@@ -4,6 +4,7 @@ const Shop = require('../models/Shop');
 const Product = require('../models/Product');
 const Review = require('../models/Review');
 const orderService = require('../services/orderService');
+const { SHOP_PUBLIC_FIELDS, USER_PUBLIC_FIELDS } = require('../utils/projections');
 
 exports.createOrder = async (req, res) => {
   try {
@@ -60,6 +61,7 @@ exports.getAvailableDeliveries = async (req, res) => {
       orderStatus: 'PACKED',
       riderId: { $exists: false }
     })
+      .select('-deliveryOtp -pickupOtp')
       .populate('shopId', 'shopName addressText location')
       .sort({ createdAt: 1 });
 
@@ -76,7 +78,20 @@ exports.getMyDeliveries = async (req, res) => {
       .populate('buyerId', 'name phone addresses')
       .sort({ createdAt: -1 });
 
-    res.status(200).json(orders);
+    const ordersObj = orders.map(order => {
+      const orderObj = order.toObject();
+      if (orderObj.buyerId && orderObj.buyerId.addresses) {
+        // Filter to only include the default address or first address for the rider
+        const deliveryAddress = orderObj.buyerId.addresses.find(a => a.isDefault) || orderObj.buyerId.addresses[0];
+        orderObj.buyerId.addresses = deliveryAddress ? [deliveryAddress] : [];
+      }
+      // Riders don't see OTPs
+      delete orderObj.deliveryOtp;
+      delete orderObj.pickupOtp;
+      return orderObj;
+    });
+
+    res.status(200).json(ordersObj);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -123,11 +138,22 @@ exports.acceptDelivery = async (req, res) => {
         riderEarnings: simulatedEarnings
       },
       { new: true }
-    ).populate('shopId buyerId riderId');
+    ).populate('shopId', SHOP_PUBLIC_FIELDS)
+     .populate('buyerId', USER_PUBLIC_FIELDS + ' addresses')
+     .populate('riderId', USER_PUBLIC_FIELDS);
 
     if (!order) {
       return res.status(409).json({ message: 'This delivery is no longer available' });
     }
+
+    const orderObj = order.toObject();
+    if (orderObj.buyerId && orderObj.buyerId.addresses) {
+      const deliveryAddress = orderObj.buyerId.addresses.find(a => a.isDefault) || orderObj.buyerId.addresses[0];
+      orderObj.buyerId.addresses = deliveryAddress ? [deliveryAddress] : [];
+    }
+    // Riders don't see OTPs
+    delete orderObj.deliveryOtp;
+    delete orderObj.pickupOtp;
 
     const io = req.app.get('socketio');
     if (io) {
@@ -219,7 +245,11 @@ exports.getRiderWallet = async (req, res) => {
 
 exports.getOrderDetails = async (req, res) => {
   try {
-    const order = await Order.findById(req.params.id).populate('shopId buyerId riderId');
+    const order = await Order.findById(req.params.id)
+      .populate('shopId', SHOP_PUBLIC_FIELDS + ' ownerId')
+      .populate('buyerId', USER_PUBLIC_FIELDS)
+      .populate('riderId', USER_PUBLIC_FIELDS);
+
     if (!order) return res.status(404).json({ message: 'Order not found' });
 
     const isBuyer = order.buyerId._id.toString() === req.user.id;
@@ -229,7 +259,13 @@ exports.getOrderDetails = async (req, res) => {
       return res.status(403).json({ message: 'You are not authorized to view this order' });
     }
 
-    res.status(200).json(order);
+    const orderObj = order.toObject();
+    if (!isBuyer) {
+      delete orderObj.deliveryOtp;
+      delete orderObj.pickupOtp;
+    }
+
+    res.status(200).json(orderObj);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -272,6 +308,13 @@ exports.updateOrderStatus = async (req, res) => {
 
     order.orderStatus = status;
     await order.save();
+
+    const orderObj = order.toObject();
+    const isBuyerInOrder = order.buyerId.toString() === req.user.id;
+    if (!isBuyerInOrder) {
+      delete orderObj.deliveryOtp;
+      delete orderObj.pickupOtp;
+    }
 
     // If status is PACKED, broadcast to available riders
     if (status === 'PACKED' && order.orderType === 'DELIVERY') {
@@ -326,7 +369,7 @@ exports.updateOrderStatus = async (req, res) => {
       });
     }
 
-    res.status(200).json(order);
+    res.status(200).json(orderObj);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

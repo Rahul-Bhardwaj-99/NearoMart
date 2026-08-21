@@ -30,10 +30,7 @@ class ApiConstants {
   static const String riderAvailability = '/orders/rider/availability';
   static const String specials = '/specials';
   static const String chats = '/chats';
-
   static String chat(String chatId) => '$chats/$chatId';
-
   static String chatRead(String chatId) => '${chat(chatId)}/read';
-
   static String endChat(String chatId) => '${chat(chatId)}/end';
 }

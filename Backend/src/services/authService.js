@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
+const { USER_SELF_FIELDS } = require('../utils/projections');
 
 class AuthService {
   normalizeRole(role) {
@@ -25,7 +26,7 @@ class AuthService {
   }
 
   async getProfile(userId) {
-    const user = await User.findById(userId).select('-password');
+    const user = await User.findById(userId).select(USER_SELF_FIELDS);
     if (!user) throw new Error('User not found');
 
     const profile = user.toObject();

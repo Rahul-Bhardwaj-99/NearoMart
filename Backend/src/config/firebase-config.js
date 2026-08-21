@@ -1,15 +1,21 @@
 const admin = require('firebase-admin');
 
 try {
-  // If you have a serviceAccountKey.json, you can initialize with:
-  // const serviceAccount = require('../../serviceAccountKey.json');
-  // admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
-
-  admin.initializeApp();
-  console.log('Firebase Admin initialized successfully');
+  if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+    // Railway/Production: Initialize using the JSON string from Environment Variable
+    const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount)
+    });
+    console.log('Firebase Admin initialized successfully via Environment Variable');
+  } else {
+    // Local: Fallback to default (looks for GOOGLE_APPLICATION_CREDENTIALS file path)
+    admin.initializeApp();
+    console.log('Firebase Admin initialized successfully via default credentials');
+  }
 } catch (error) {
   console.warn('Firebase Admin initialization warning:', error.message);
-  console.warn('Ensure GOOGLE_APPLICATION_CREDENTIALS is set or you are running on a GCP environment.');
+  console.warn('Ensure FIREBASE_SERVICE_ACCOUNT is set in production or GOOGLE_APPLICATION_CREDENTIALS is set locally.');
 }
 
 module.exports = admin;

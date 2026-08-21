@@ -2,21 +2,17 @@ const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController');
 const auth = require('../middleware/authMiddleware');
-
 router.post('/verify-otp', authController.verifyOtp);
 router.put('/update-role', auth, authController.updateUserRole);
 router.put('/complete-onboarding', auth, authController.completeOnboarding);
 router.post('/logout', auth, authController.logout);
-
 router.get('/profile', auth, authController.getProfile);
 router.put('/update-profile', auth, authController.updateProfile);
 router.post('/request-update-otp', auth, authController.requestUpdateOtp);
 router.post('/verify-update-otp', auth, authController.verifyUpdateOtp);
-
 router.get('/addresses', auth, authController.getAddresses);
 router.post('/addresses', auth, authController.addAddress);
 router.put('/addresses/:id', auth, authController.updateAddress);
 router.put('/addresses/:id/default', auth, authController.setDefaultAddress);
 router.delete('/addresses/:id', auth, authController.deleteAddress);
-
 module.exports = router;
