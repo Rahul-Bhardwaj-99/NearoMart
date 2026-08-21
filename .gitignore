@@ -1,0 +1,30 @@
+# Flutter
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+pubspec.lock
+build/
+
+# Android
+.gradle/
+**/.gradle/
+android/local.properties
+
+# Node
+node_modules/
+**/node_modules/
+
+# IDE
+.idea/
+.vscode/
+
+# Environment files
+.env
+*.env
+
+# Artifacts
+.artifacts/
+
+# Logs
+*.log

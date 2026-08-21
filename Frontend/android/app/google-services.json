@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "866672297366",
+    "project_id": "nearomart",
+    "storage_bucket": "nearomart.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:866672297366:android:8cd4968f34dcdb66b009b7",
+        "android_client_info": {
+          "package_name": "com.example.nearomart"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBhU4N1Lk_C99M8AzRDv4SyLK6iZVhyHXA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
