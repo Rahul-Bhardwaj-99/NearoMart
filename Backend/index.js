@@ -1,17 +1,12 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const dotenv = require('dotenv');
 const http = require('http');
 const { Server } = require('socket.io');
-const dns = require('dns');
-
-dns.setServers(['8.8.8.8', '8.8.4.4']);
 
 const socketService = require('./src/services/socketService');
 require('./src/config/firebase-config');
-
-dotenv.config();
 
 const app = express();
 const server = http.createServer(app);

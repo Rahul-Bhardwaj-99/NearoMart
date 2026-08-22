@@ -1,10 +1,7 @@
 const mongoose = require('mongoose');
 const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
-const dotenv = require('dotenv');
 const path = require('path');
-
-dotenv.config();
 
 const useGridFs = () => process.env.MEDIA_STORAGE !== 's3';
 
